@@ -23,6 +23,18 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddControllers();
 
+var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        name: myAllowSpecificOrigins,
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200")
+                .AllowAnyMethod();
+        });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -36,5 +48,7 @@ app.UseHttpsRedirection();
 
 app.MapGet("/health", () => "Healthy!");
 app.MapControllers();
+
+app.UseCors(myAllowSpecificOrigins);
 
 app.Run();
