@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace booking_api.Controllers;
 
+public record HotelWithoutId(string Name, string Location);
+
 [Route("/hotels")]
 [Produces("application/json")]
 public class HotelsController(AppDbContext db) : Controller
@@ -28,4 +30,27 @@ public class HotelsController(AppDbContext db) : Controller
 
         return hotel;
     }
+
+    [HttpPost]
+    public async Task<IActionResult> PostHotel([FromBody] HotelWithoutId hotel)
+    {
+        var hotelId = Guid.NewGuid();
+        var newHotel = new Hotel
+        {
+            Id = hotelId,
+            Name = hotel.Name,
+            Location = hotel.Location
+        };
+
+        db.Hotels.Add(newHotel);
+        await db.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetHotel), new { hotelId }, hotel);
+    }
 }
+
+
+
+
+
+
