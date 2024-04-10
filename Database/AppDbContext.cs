@@ -6,4 +6,5 @@ namespace booking_api.Database;
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
     public DbSet<Hotel> Hotels { get; set; }
+    public DbSet<Reservation> Reservations { get; set; }
 }
