@@ -1,5 +1,8 @@
+using System.Security.Claims;
 using booking_api.Database;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,6 +39,22 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.RequireHttpsMetadata = false;
+        options.Authority = "http://localhost:8080/realms/booking-website";
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            NameClaimType = ClaimTypes.Name,
+            RoleClaimType = "realm_access",
+            ValidateIssuer = true,
+            ValidIssuer = "http://localhost:8080/realms/booking-website",
+            ValidateAudience = true,
+            ValidAudience = "account",
+        };
+    });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -51,5 +70,6 @@ app.MapGet("/health", () => "Healthy!");
 app.MapControllers();
 
 app.UseCors(myAllowSpecificOrigins);
+app.UseAuthorization();
 
 app.Run();

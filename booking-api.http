@@ -1,6 +1,9 @@
 @booking_api_HostAddress = http://localhost:5158
 
-GET {{booking_api_HostAddress}}/weatherforecast/
+GET {{booking_api_HostAddress}}/hotels
 Accept: application/json
 
-###
+### get hotel by id
+@hotelId=1e41fe92-2b7b-48e6-80fe-8f5666e87663
+GET {{booking_api_HostAddress}}/hotels/{{hotelId}}
+Accept: application/json

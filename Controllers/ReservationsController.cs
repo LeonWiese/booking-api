@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using booking_api.Database;
 using booking_api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,17 +17,13 @@ public record CreateReservation(DateTime From, DateTime To, string? Comment);
 public class ReservationsController(AppDbContext db) : Controller
 {
     [HttpGet]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ReservationWithoutHotel))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<List<ReservationWithoutHotel>>> GetReservations(
-        Guid hotelId,
-        [FromHeader(Name = "x-user-id")] [Required]
-        Guid? userId)
+        Guid hotelId)
     {
-        if (userId == null)
-        {
-            return Unauthorized();
-        }
+        var userId = new Guid(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         var query = from r in db.Reservations
             where r.Hotel.Id == hotelId
@@ -36,16 +34,12 @@ public class ReservationsController(AppDbContext db) : Controller
     }
 
     [HttpGet("{reservationId}")]
+    [Authorize]
     public async Task<ActionResult<ReservationWithoutHotel>> GetReservation(
         Guid hotelId,
-        Guid reservationId,
-        [FromHeader(Name = "x-user-id")] [Required]
-        Guid? userId)
+        Guid reservationId)
     {
-        if (userId == null)
-        {
-            return Unauthorized();
-        }
+        var userId = new Guid(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         var query = from r in db.Reservations
             where r.Id == reservationId
@@ -58,18 +52,14 @@ public class ReservationsController(AppDbContext db) : Controller
     }
 
     [HttpPost]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Reservation))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> PostReservation(
         Guid hotelId,
-        [FromHeader(Name = "x-user-id")] [Required]
-        Guid? userId,
         [FromBody] CreateReservation reservation)
     {
-        if (userId == null)
-        {
-            return Unauthorized();
-        }
+        var userId = new Guid(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         var id = Guid.NewGuid();
         var newReservation = new Reservation
@@ -88,17 +78,13 @@ public class ReservationsController(AppDbContext db) : Controller
     }
 
     [HttpDelete("{reservationId}")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> DeleteReservation(
         Guid hotelId,
-        Guid reservationId,
-        [FromHeader(Name = "x-user-id")] [Required]
-        Guid? userId)
+        Guid reservationId)
     {
-        if (userId == null)
-        {
-            return Unauthorized();
-        }
+        var userId = new Guid(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         var rowsDeleted = await db.Reservations
             .Where(r =>
@@ -112,14 +98,10 @@ public class ReservationsController(AppDbContext db) : Controller
     }
 
     [HttpGet("/reservations")]
-    public async Task<ActionResult<List<ReservationWithoutHotel>>> GetUserReservations(
-        [FromHeader(Name = "x-user-id")] [Required]
-        Guid? userId)
+    [Authorize]
+    public async Task<ActionResult<List<ReservationWithoutHotel>>> GetUserReservations()
     {
-        if (userId == null)
-        {
-            return Unauthorized();
-        }
+        var userId = new Guid(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         var query = from r in db.Reservations
             where r.UserId == userId
