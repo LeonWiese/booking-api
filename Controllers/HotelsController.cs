@@ -40,6 +40,7 @@ public class HotelsController(AppDbContext db) : Controller
     [HttpPost]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Hotel))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> PostHotel([FromBody] HotelWithoutId hotel)
     {
         var roles = JsonSerializer.Deserialize<RealmAccess>(User.FindFirstValue("realm_access") ?? "{}")?.roles;
@@ -66,6 +67,7 @@ public class HotelsController(AppDbContext db) : Controller
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> DeleteHotels(Guid hotelId)
     {
         var roles = JsonSerializer.Deserialize<RealmAccess>(User.FindFirstValue("realm_access") ?? "{}")?.roles;

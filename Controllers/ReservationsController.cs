@@ -35,6 +35,9 @@ public class ReservationsController(AppDbContext db) : Controller
 
     [HttpGet("{reservationId}")]
     [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ReservationWithoutHotel>> GetReservation(
         Guid hotelId,
         Guid reservationId)
@@ -79,6 +82,8 @@ public class ReservationsController(AppDbContext db) : Controller
 
     [HttpDelete("{reservationId}")]
     [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> DeleteReservation(
         Guid hotelId,
@@ -99,6 +104,8 @@ public class ReservationsController(AppDbContext db) : Controller
 
     [HttpGet("/reservations")]
     [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<List<ReservationWithoutHotel>>> GetUserReservations()
     {
         var userId = new Guid(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
